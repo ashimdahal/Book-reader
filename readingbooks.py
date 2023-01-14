@@ -1,13 +1,3 @@
-##### for tessseract to run first do ###########
-# sudo apt install tesseract & pip install pytesseract scikit-image and 
-# recommended to update imutils with pip install -U imutils
-#### to run, python readingbooks.py -s <source>
-## what can be source? its either path to image or use webcam ( to use webcam pass 0 or 1 if you 
-# have an external webcam)
-#  to morph the image during image processing(only applicable for images )use -m True (  its false
-# by default)
-
-############## import necessary libraries#######
 
 import cv2
 import numpy as np
@@ -33,7 +23,6 @@ def gettext(img):
     
     return text
 
-
 ##########to rearrange the 4 corners of contours so that smallest one comes first and
 # so on , as to make a rectangle points in order##################
 def rearrangement(pts):
@@ -47,16 +36,19 @@ def rearrangement(pts):
     npts[1]= pts[np.argmin(diff)]
     npts[2]= pts[np.argmax(diff)]
     return npts
+
 ######## morphing filter , use only in images as its quite cpu consuming#######
 def morphing(img):
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5))
     closing = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel,iterations=1)
     return closing
+
 ######## self explanatory , LOLx
 def preProcessing(img):
     imgBlur = cv2.GaussianBlur(img,(5,5),0)
     imgCanny = cv2.Canny(imgBlur,100,200)
     return imgCanny
+
 ########### make image more noise free if there is any, you may want to add it in the result
 # if you dont want to see any noise but this may sometimes denoise the letters so
 # i only used it for first preprocessing process##############
@@ -64,6 +56,7 @@ def denoiser(img):
     dst = cv2.fastNlMeansDenoisingColored(img,None,10,10,7,21)
 
     return dst
+
 ##basic thresholding 
 def thresholding(img,sk=False):
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
@@ -77,6 +70,7 @@ def thresholding(img,sk=False):
     _,thres = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     
     return thres
+
 #### finding contours and returning the biggest rectangle among them
 def findcontours(img):
     contours,hierarchy = cv2.findContours(img,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
@@ -94,6 +88,7 @@ def findcontours(img):
                 # cv2.drawContours(finalimage, mainbox, -1, (0, 0, 255), 3)             
                 return mainbox 
     return np.array([0,0])
+
 ##### run the application from webcam or camera , ps no video yet 
 def fromvideo(source):
     cap = cv2.VideoCapture(source)
@@ -125,6 +120,7 @@ def fromvideo(source):
         cv2.imshow('camera',img)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
+
 #### run the application from image
 def fromImg(path):
     global finalimage
@@ -156,6 +152,7 @@ def fromImg(path):
 
         cv2.imshow('result',res)
     cv2.waitKey(0)
+
  ###### main , if int is given then use video else use the source 
 def main():
     source = args['source']
@@ -164,7 +161,6 @@ def main():
         fromvideo(int(source))
     except:
         fromImg(source)
-
 
 if __name__ == '__main__':
     main()
